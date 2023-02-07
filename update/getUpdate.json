@@ -1,6 +1,6 @@
 {
   "response": "1",
-  "vers": "1.8.4-beta",
+  "vers": "1.8.5-beta",
   "json": false,
   "updateurl": "https://github.com/H1om/tools/blob/main/update/AdminTools.luac?raw=true"
 }
