@@ -39,10 +39,7 @@ else
 	echo "[ERROR] Ошибка в распознавании модели. Сверьте данные: $model"
 fi
 
-
 FirstSSID=$(jq -r '.[0].name' "$ssid_config") # Узнаем имя приоритетной сети
-
-GetDisabled=$(uci get wireless.$FirstSSID.disabled) # Статус сети, выключена или отключена
 
 switch_ssid() { # Функция для переключения SSID
   local value="$1"  # Получаем значение аргумента
@@ -70,11 +67,11 @@ switch_ssid() { # Функция для переключения SSID
     if check_internet; then # Проверяем доступность интернета
       echo "Интернет доступен, остаюсь на $ssid"
 
-	  if [ "$value" == "1" ] && [ "$FirstSSID" == "$ssid" ]; then
-		  send_telegram "[Смена на приоритетную сеть] : $ssid. Router: $model" 
-      else
-		  send_telegram "[Смена сети]: $ssid. Router: $model"
-	  fi
+      if [ "$value" == "1" ] && [ "$FirstSSID" == "$ssid" ]; then
+        send_telegram "[Смена на приоритетную сеть] : $ssid. Router: $model" 
+        else
+        send_telegram "[Смена сети]: $ssid. Router: $model"
+      fi
 
       exit 0
     fi
@@ -94,21 +91,23 @@ current_datetime() { # Функция проверки времени
 
 connect_first_WIFI() { # Переподключение к первому SSID
 
+  GetDisabled=$(uci get wireless.$FirstSSID.disabled) # Статус сети, выключена или отключена
+
   current_time=$(echo "$(current_datetime)" | cut -d ' ' -f2 | cut -d ':' -f1) # Узнаем текущий час
 
-  if [ "$GetDisabled" == "1" ] && [ "$current_time" == "14" ]; then
+  if [ "$GetDisabled" == "1" ] && [ "$current_time" == "06" ]; then
 
-	if [ "$(cat "$CONFIG_FILE")" != "$(current_datetime)" ]; then # Проверка, были ли уже попытки подключения в текущем дне
-		echo "Пробую подключится к приоритетной сети..."
+    if [ "$(cat "$CONFIG_FILE")" != "$(current_datetime)" ]; then # Проверка, были ли уже попытки подключения в текущем дне
+      echo "Пробую подключится к приоритетной сети..."
 
-		echo "$(current_datetime)" > "$CONFIG_FILE" # Обновляем дату в конфиге
-		switch_ssid "1"
-	else
-		echo "Попытки подключения уже были в текущем дне. Пропускаем переключение."
-	fi
+      echo "$(current_datetime)" > "$CONFIG_FILE" # Обновляем дату в конфиге
+      switch_ssid "1"
+    else
+      echo "Попытки подключения уже были в текущем дне. Пропускаем переключение."
+    fi
 
   else
-	echo "SSID: $FirstSSID Время: $current_time value: $GetDisabled"
+	  echo "SSID: $FirstSSID Время: $current_time value: $GetDisabled"
   fi
 }
 
@@ -151,8 +150,7 @@ send_telegram() { # Функция для отправки уведомлени�
     curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" -d "chat_id=$CHAT_ID" -d "text=$message"
 }
 
-install_module() {
-  # Функция для установки модуля
+install_module() { # Функция для установки модуля
   required_modules="curl base64 jq"
 
   update_done=false 
