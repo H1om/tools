@@ -1,0 +1,33 @@
+{
+    "manifest_version": 3,
+    "name": "Otomoto Parser",
+    "version": "1.0",
+    "description": "Парсер объявлений Otomoto: фото, характеристики, VIN, описание.",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "downloads",
+        "storage"
+    ],
+    "host_permissions": [
+        "https://*.otomoto.pl/*"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "js/background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*.otomoto.pl/*"
+            ],
+            "js": [
+                "lib/jszip.min.js",
+                "js/content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ]
+}
